@@ -122,6 +122,8 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            // Disable close button... and close the showing of all the items...
+            this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
     deleteList = () => {
