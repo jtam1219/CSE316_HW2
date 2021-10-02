@@ -122,20 +122,19 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
-            // Disable close button... and close the showing of all the items...
-            this.db.mutationUpdateSessionData(this.state.sessionData);
+
         });
     }
-    deleteList = () => {
+    deleteList = (key) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
-        this.showDeleteListModal();
+        this.showDeleteListModal(key);
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
-    showDeleteListModal() {
+    showDeleteListModal(key) {
         let modal = document.getElementById("delete-modal");
         modal.classList.add("is-visible");
     }
@@ -164,6 +163,7 @@ class App extends React.Component {
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
+                    listKeyPair={this.state.currentList}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                 />
             </div>
