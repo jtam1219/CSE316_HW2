@@ -105,7 +105,7 @@ class App extends React.Component {
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
-    renameItem = (id, listId, newName) => {
+    renameItem = (id, listid, newName) => {
         let items = this.state.currentList.items;
         // NOW GO THROUGH THE ARRAY AND FIND THE ONE TO RENAME
         for (let i = 0; i < items.length; i++) {
@@ -123,7 +123,7 @@ class App extends React.Component {
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
-            let list = this.db.queryGetList(listId); //get the list based on the id for the item
+            let list = this.db.queryGetList(listid); //get the list based on the id for the item
             list.items[id]=newName;
             this.db.mutationUpdateList(list);
             this.db.mutationUpdateSessionData(this.state.sessionData);
@@ -150,12 +150,37 @@ class App extends React.Component {
 
         });
     }
-    deleteList = (key) => {
+    deleteList = () => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
-        this.showDeleteListModal(key);
+        this.showDeleteListModal();
+    }
+
+    //EXECUTES THE FUNCTION TO REMOVE LIST FROM LOCAL STORAGE
+    doDeleteList = (key) => {
+        //FIGURE OUT HOW TO PHYSICALLY REMOVE THE LIST FROM THE LOCAL STORAGE
+        let updatedPairs = [...this.state.sessionData.keyNamePairs];
+        updatedPairs.splice(key, 1);
+        this.sortKeyNamePairsByName(updatedPairs);
+
+        //SETS THE STATE OF REMOVING THE NEXTKEY AND COUNTER BY 1, THEN CLOSES THE LIST
+        this.setState(prevState => ({
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey - 1,
+                counter: prevState.sessionData.counter - 1,
+                keyNamePairs: updatedPairs
+            }
+        }), () => {
+            // REMOVING ITEM IN PERMANENT STORAGE
+            // IS AN AFTER EFFECT
+            this.closeCurrentList();
+            this.hideDeleteListModal();
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+
+
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -190,6 +215,7 @@ class App extends React.Component {
                     currentList={this.state.currentList} />
                 <DeleteModal
                     listKeyPair={this.state.currentList}
+                    doDeleteListCallback={this.doDeleteList}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                 />
             </div>
