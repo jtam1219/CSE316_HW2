@@ -36,10 +36,10 @@ export default class ItemCard extends React.Component {
         this.handleToggleEdit();
     }
 
-    //FIX DRAG AND DROP
+    //FIX DRAG AND DROP, MAKE IT SO THAT IT CAN PROPERLY DROP!!!!
     allowDrop = (event) => {
         event.preventDefault();
-        if (event.target.draggable = true){
+        if (event.target.draggable){
             event.target.style.background = "#669966";
         }
       }
@@ -53,7 +53,7 @@ export default class ItemCard extends React.Component {
         event.preventDefault();
         let data = event.dataTransfer.getData("text");
         event.target.style.background = "";
-        //this.db.moveItems??????
+        //this.db.moveItemTransaction??????
     }
 
     leave = (event) => {

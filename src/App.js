@@ -194,12 +194,27 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+    hasUndos(){
+        alert("Checks if most recent transaction >= 0")
+    }
+    hasRedos(){
+        alert("Checks if most recent transaction + 1 < number of transactions")
+    }
+
+    doUndoTransaction(){
+        alert("Make a Transaction Stack + 1 to Array!")
+    }
+    doRedoTransaction(){
+        alert("Make a Transaction Stack + 2 to Array!")
+    }
     render() {
         return (
             <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
-                    closeCallback={this.closeCurrentList} />
+                    closeCallback={this.closeCurrentList}
+                    doUndoCallback={this.doUndoTransaction}
+                    doRedoCallback={this.doRedoTransaction} />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
