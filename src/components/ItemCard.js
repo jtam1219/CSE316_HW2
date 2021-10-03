@@ -28,14 +28,15 @@ export default class ItemCard extends React.Component {
     }
     handleBlur = () => {
         let id = this.props.id;
+        let listId = this.props.listId;
         let textValue = this.state.text;
         console.log("Item handleBlur: " + textValue);
-        this.props.renameItemCallback(id, textValue);
+        this.props.renameItemCallback(id, listId, textValue);
         this.handleToggleEdit();
     }
 
     render() {
-        const {id, name} = this.props;
+        const {id, listId, name} = this.props;
 
         if (this.state.editActive) {
             return (
@@ -53,6 +54,7 @@ export default class ItemCard extends React.Component {
             return (
                 <div
                     id={"item-"+id}
+                    listId= {listId}
                     onDoubleClick={this.handleClick}
                     className='top5-item'>
                     {name}

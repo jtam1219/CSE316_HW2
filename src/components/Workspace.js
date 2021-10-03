@@ -37,6 +37,7 @@ export default class Workspace extends React.Component {
                                     id = {index}
                                     key = {index}
                                     name = {item}
+                                    listId= {currentList.key}
                                     renameItemCallback={renameItemCallback}
                                 />
                             ))
