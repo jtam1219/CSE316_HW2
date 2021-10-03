@@ -159,6 +159,7 @@ class App extends React.Component {
     }
 
     //EXECUTES THE FUNCTION TO REMOVE LIST FROM LOCAL STORAGE
+    //NEEDS FIXING, THE UNTITLED WOULD BUG OUT AND GIVE SAME NUMBER ,COUNTER ALSO GOES BELOW 0 FOR SOME REASON...
     doDeleteList = (key) => {
         //FIGURE OUT HOW TO PHYSICALLY REMOVE THE LIST FROM THE LOCAL STORAGE
         let updatedPairs = [...this.state.sessionData.keyNamePairs];

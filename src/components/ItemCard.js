@@ -9,6 +9,7 @@ export default class ItemCard extends React.Component {
             editActive: false,
         }
     }
+    
     handleClick = (event) => {
         this.handleToggleEdit(event);
     }
@@ -35,6 +36,31 @@ export default class ItemCard extends React.Component {
         this.handleToggleEdit();
     }
 
+    //FIX DRAG AND DROP
+    allowDrop = (event) => {
+        event.preventDefault();
+        if (event.target.draggable = true){
+            event.target.style.background = "#669966";
+        }
+      }
+      
+    drag = (event) => {
+        event.dataTransfer.setData("text", event.target.id);
+        event.dataTransfer.setData("id", event.target.id);
+      }
+      
+    drop = (event) => {
+        event.preventDefault();
+        let data = event.dataTransfer.getData("text");
+        event.target.style.background = "";
+        //this.db.moveItems??????
+    }
+
+    leave = (event) => {
+        event.preventDefault();
+        event.target.style.background = "";
+    }
+
     render() {
         const {id, listid, name} = this.props;
 
@@ -55,7 +81,12 @@ export default class ItemCard extends React.Component {
                 <div
                     id={"item-"+id}
                     listid= {listid}
+                    draggable={true}
                     onDoubleClick={this.handleClick}
+                    onDrop={this.drop}
+                    onDragOver={this.allowDrop}
+                    onDragLeave={this.leave}
+                    onDragStart={this.drag}
                     className='top5-item'>
                     {name}
                 </div>
