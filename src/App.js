@@ -104,6 +104,30 @@ class App extends React.Component {
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
+    renameItem = (id, newName) => {
+        let items = this.state.currentList.items;
+        // NOW GO THROUGH THE ARRAY AND FIND THE ONE TO RENAME
+        for (let i = 0; i < items.length; i++) {
+            if (i === id) {
+                items[i] = newName;
+            }
+        }
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs:  [...this.state.sessionData.keyNamePairs]
+            }
+        }), () => {
+            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
+            // THE TRANSACTION STACK IS CLEARED
+            let list = this.db.queryGetList(id);
+            list.items[id]=newName;
+            this.db.mutationUpdateList(list);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+    }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
@@ -159,7 +183,8 @@ class App extends React.Component {
                     renameListCallback={this.renameList}
                 />
                 <Workspace
-                    currentList={this.state.currentList} />
+                    currentList={this.state.currentList}
+                    renameItemCallback={this.renameItem} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal

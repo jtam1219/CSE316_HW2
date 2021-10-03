@@ -9,6 +9,10 @@ export default class ItemCard extends React.Component {
             editActive: false,
         }
     }
+    handleClick = (event) => {
+        this.handleToggleEdit(event);
+    }
+
     handleToggleEdit = (event) => {
         this.setState({
             editActive: !this.state.editActive
@@ -23,15 +27,15 @@ export default class ItemCard extends React.Component {
         }
     }
     handleBlur = () => {
-        let key = this.props.key;
+        let id = this.props.id;
         let textValue = this.state.text;
         console.log("Item handleBlur: " + textValue);
-        //this.props.renameItemCallback(key, textValue);
-        //this.handleToggleEdit();
+        this.props.renameItemCallback(id, textValue);
+        this.handleToggleEdit();
     }
 
     render() {
-        const {id, key, name} = this.props;
+        const {id, name} = this.props;
 
         if (this.state.editActive) {
             return (
@@ -49,7 +53,6 @@ export default class ItemCard extends React.Component {
             return (
                 <div
                     id={"item-"+id}
-                    key={key}
                     onDoubleClick={this.handleClick}
                     className='top5-item'>
                     {name}
