@@ -13,7 +13,7 @@ import Statusbar from './components/Statusbar.js'
 
 import jsTPS from './common/jsTPS.js'
 import MoveItem_Transaction from './transactions/MoveItem_Transaction.js';
-import ChangeItem_Transaction from "./transactions/ChangeItem_Transaction.js"
+import RenameItem_Transaction from "./transactions/RenameItem_Transaction.js"
 
 class App extends React.Component {
     constructor(props) {
@@ -173,6 +173,8 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
+        this.updateToolbarButtons();
+        this.enableButton("close-button");
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
             currentList: newCurrentList,
@@ -189,6 +191,7 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            this.disableButton("close-button");
             this.tps.clearAllTransactions();
             this.updateToolbarButtons();
         });
@@ -254,10 +257,11 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
-    addChangeItemTransaction = (id, newText) => {
+    addRenameItemTransaction = (listid, id, newText) => {
         // GET THE CURRENT TEXT
-        let oldText = this.currentList.items[id];
-        let transaction = new ChangeItem_Transaction(this, id, oldText, newText);
+        let list = this.db.queryGetList(listid);
+        let oldText = list.items[id];
+        let transaction = new RenameItem_Transaction(this, listid, id, oldText, newText);
         this.tps.addTransaction(transaction);
     }
 
@@ -267,7 +271,7 @@ class App extends React.Component {
         newIndex = newIndex[5];
         //oldIndex--;
         //newIndex--;
-        let transaction = new  MoveItem_Transaction(this, listid, oldIndex, newIndex);
+        let transaction = new MoveItem_Transaction(this, listid, oldIndex, newIndex);
         this.tps.addTransaction(transaction);
     }
 
@@ -340,7 +344,7 @@ class App extends React.Component {
                     currentList={this.state.currentList}
                     renameItemCallback={this.renameItem}
                     moveItemCallback={this.addMoveItemTransaction}
-                    changeItemCallback={this.addChangeItemTransaction} />
+                    renameItemCallback={this.addRenameItemTransaction} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
