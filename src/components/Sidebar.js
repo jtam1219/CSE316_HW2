@@ -2,6 +2,14 @@ import React from "react";
 import ListCard from "./ListCard";
 
 export default class Sidebar extends React.Component {
+    handleClick = () => {
+        let button = document.getElementById("add-list-button")
+        if (button.classList.contains("disabled")){
+        }
+        else{
+            this.props.createNewListCallback();
+        }
+    }
     render() {
         const { heading,
                 currentList,
@@ -17,7 +25,7 @@ export default class Sidebar extends React.Component {
                     <input 
                         type="button" 
                         id="add-list-button" 
-                        onClick={createNewListCallback}
+                        onClick={this.handleClick}
                         className="top5-button" 
                         value="+" />
                     {heading}

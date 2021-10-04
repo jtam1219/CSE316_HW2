@@ -11,6 +11,7 @@ export default class ItemCard extends React.Component {
     }
     
     handleClick = (event) => {
+        this.props.disableButtonCallback("add-list-button");
         this.handleToggleEdit(event);
     }
 
@@ -33,6 +34,7 @@ export default class ItemCard extends React.Component {
         let textValue = this.state.text;
         console.log("Item handleBlur: " + textValue);
         this.props.renameItemCallback(listid, id, textValue);
+        this.props.enableButtonCallback("add-list-button");
         this.handleToggleEdit();
     }
 

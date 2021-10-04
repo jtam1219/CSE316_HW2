@@ -79,16 +79,21 @@ class App extends React.Component {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
+            let list=this.db.queryGetList(newList.key);
             let tempStorage=[];
+            let newKey;
             for (let i=0; i<updatedPairs.length; i++){
                 let j=0;
-                let list=this.db.queryGetList(j);
-                while (updatedPairs[i].name !== list.name){
-                    list=this.db.queryGetList(j);    
+                let tempList=this.db.queryGetList(j);
+                while (updatedPairs[i].name !== tempList.name){
+                    tempList=this.db.queryGetList(j);    
                     j++;
                 }
-                list.key = updatedPairs[i].key;
-                tempStorage[i]=list; 
+                if(updatedPairs[i].name === list.name){
+                    newKey=i;
+                }
+                tempList.key = updatedPairs[i].key;
+                tempStorage[i]=tempList; 
             }
 
             for (let i=0; i<tempStorage.length; i++){
@@ -96,6 +101,7 @@ class App extends React.Component {
                 this.db.mutationUpdateList(list);
             }
             this.db.mutationUpdateSessionData(this.state.sessionData);
+            this.loadList(tempStorage[newKey].key);
             console.log(this.tps.transactions);
         });
     }
@@ -131,15 +137,19 @@ class App extends React.Component {
             this.db.mutationUpdateList(list);
             this.db.mutationUpdateSessionData(this.state.sessionData);
             let tempStorage=[];
+            let newKey;
             for (let i=0; i<newKeyNamePairs.length; i++){
                 let j=0;
-                let list=this.db.queryGetList(j);
-                while (newKeyNamePairs[i].name !== list.name){
-                    list=this.db.queryGetList(j);    
+                let tempList=this.db.queryGetList(j);
+                while (newKeyNamePairs[i].name !== tempList.name){
+                    tempList=this.db.queryGetList(j);    
                     j++;
                 }
-                list.key = newKeyNamePairs[i].key;
-                tempStorage[i]=list; 
+                if(newKeyNamePairs[i].name === list.name){
+                    newKey=i;
+                }
+                tempList.key = newKeyNamePairs[i].key;
+                tempStorage[i]=tempList; 
             }
 
             for (let i=0; i<tempStorage.length; i++){
@@ -147,6 +157,7 @@ class App extends React.Component {
                 this.db.mutationUpdateList(list);
             }
             this.db.mutationUpdateSessionData(this.state.sessionData);
+            this.loadList(tempStorage[newKey].key);
         });
     }
     renameItem = (id, listid, newName) => {
@@ -267,6 +278,7 @@ class App extends React.Component {
         let oldText = list.items[id];
         let transaction = new RenameItem_Transaction(this, listid, id, oldText, newText);
         this.tps.addTransaction(transaction);
+        this.updateToolbarButtons();
     }
 
     addMoveItemTransaction = (listid, oldIndex, newIndex) => {
@@ -277,6 +289,7 @@ class App extends React.Component {
         //newIndex--;
         let transaction = new MoveItem_Transaction(this, listid, oldIndex, newIndex);
         this.tps.addTransaction(transaction);
+        this.updateToolbarButtons();
         console.log(this.tps.transactions);
     }
 
@@ -284,7 +297,6 @@ class App extends React.Component {
         let list=this.db.queryGetList(listid);
         list.items.splice(newId,  0, list.items.splice(oldId, 1)[0]);
         this.db.mutationUpdateList(list);
-        this.updateToolbarButtons();
         this.loadList(listid);
     }
 
@@ -351,7 +363,9 @@ class App extends React.Component {
                 <Workspace
                     currentList={this.state.currentList}
                     moveItemCallback={this.addMoveItemTransaction}
-                    renameItemCallback={this.addRenameItemTransaction} />
+                    renameItemCallback={this.addRenameItemTransaction}
+                    disableButtonCallback={this.disableButton}
+                    enableButtonCallback={this.enableButton} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal

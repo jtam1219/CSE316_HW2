@@ -230,7 +230,7 @@ input {
 }
 
 .disabled:hover {
-  color: var(--swatch-neutral);
+ color: var(--swatch-neutral);
 }
 
 /* THIS STYLE SHEET MANAGES STYLE FOR OUR MODAL, i.e. DIALOG BOX */
