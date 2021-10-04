@@ -22,6 +22,7 @@ export default class ListCard extends React.Component {
         if (listKey.startsWith("list-card-text-")) {
             listKey = listKey.substring("list-card-text-".length);
         }
+        this.props.tps.clearAllTransactions();
         this.props.loadListCallback(listKey);
     }
     handleDeleteList = (event) => {

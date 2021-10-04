@@ -44,6 +44,7 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
     createNewList = () => {
+        this.tps.clearAllTransactions();
         // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
         let newKey = this.state.sessionData.nextKey;
         let newName = "Untitled" + newKey;
@@ -82,7 +83,7 @@ class App extends React.Component {
             for (let i=0; i<updatedPairs.length; i++){
                 let j=0;
                 let list=this.db.queryGetList(j);
-                while (updatedPairs[i].name != list.name){
+                while (updatedPairs[i].name !== list.name){
                     list=this.db.queryGetList(j);    
                     j++;
                 }
@@ -95,6 +96,7 @@ class App extends React.Component {
                 this.db.mutationUpdateList(list);
             }
             this.db.mutationUpdateSessionData(this.state.sessionData);
+            console.log(this.tps.transactions);
         });
     }
     renameList = (key, newName) => {
@@ -132,7 +134,7 @@ class App extends React.Component {
             for (let i=0; i<newKeyNamePairs.length; i++){
                 let j=0;
                 let list=this.db.queryGetList(j);
-                while (newKeyNamePairs[i].name != list.name){
+                while (newKeyNamePairs[i].name !== list.name){
                     list=this.db.queryGetList(j);    
                     j++;
                 }
@@ -181,6 +183,7 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            console.log(this.tps.transactions);
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -236,6 +239,7 @@ class App extends React.Component {
             this.db.mutationUpdateSessionData(this.state.sessionData);
             this.closeCurrentList();
             this.hideDeleteListModal();
+            this.tps.clearAllTransactions();
         });
         
     }
@@ -273,12 +277,14 @@ class App extends React.Component {
         //newIndex--;
         let transaction = new MoveItem_Transaction(this, listid, oldIndex, newIndex);
         this.tps.addTransaction(transaction);
+        console.log(this.tps.transactions);
     }
 
     moveItem = (listid, oldId, newId) => {
         let list=this.db.queryGetList(listid);
         list.items.splice(newId,  0, list.items.splice(oldId, 1)[0]);
         this.db.mutationUpdateList(list);
+        this.updateToolbarButtons();
         this.loadList(listid);
     }
 
@@ -339,10 +345,11 @@ class App extends React.Component {
                     deleteListCallback={this.deleteList}
                     loadListCallback={this.loadList}
                     renameListCallback={this.renameList}
+                    clearTransactionsCallback={this.tps.clearAllTransactions}
+                    tps={this.tps}
                 />
                 <Workspace
                     currentList={this.state.currentList}
-                    renameItemCallback={this.renameItem}
                     moveItemCallback={this.addMoveItemTransaction}
                     renameItemCallback={this.addRenameItemTransaction} />
                 <Statusbar 
