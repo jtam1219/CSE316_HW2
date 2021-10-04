@@ -20,9 +20,23 @@ export default class DBManager {
         let listString = localStorage.getItem("top5-list-" + key);
         return JSON.parse(listString);
     }
+    mutationSortList = (lists) => {
+        lists.sort((keyPair1, keyPair2) => {
+            // GET THE LISTS
+            return keyPair1.name.localeCompare(keyPair2.name);
+        });
+        for (let i=0; i<lists.length; i++){
+            lists[i].key= i;
+        }
+    }
 
     mutationCreateList = (list) => {
         this.mutationUpdateList(list);
+    }
+
+    mutationDeleteList = (list) => {
+        let listString = JSON.stringify(list);
+        localStorage.removeItem("top5-list-" + list.key, listString);
     }
 
     mutationUpdateList = (list) => {

@@ -32,12 +32,15 @@ class App extends React.Component {
             // GET THE LISTS
             return keyPair1.name.localeCompare(keyPair2.name);
         });
+        for (let i=0; i<keyNamePairs.length; i++){
+            keyNamePairs[i].key= i;
+        }
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
     createNewList = () => {
         // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
         let newKey = this.state.sessionData.nextKey;
-        let newName = "Untitled" + newKey;
+        let newName = "Untitled";
 
         // MAKE THE NEW LIST
         let newList = {
@@ -69,6 +72,22 @@ class App extends React.Component {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
+            let tempStorage=[];
+            for (let i=0; i<updatedPairs.length; i++){
+                let j=0;
+                let list=this.db.queryGetList(j);
+                while (updatedPairs[i].name != list.name){
+                    list=this.db.queryGetList(j);    
+                    j++;
+                }
+                list.key = updatedPairs[i].key;
+                tempStorage[i]=list; 
+            }
+
+            for (let i=0; i<tempStorage.length; i++){
+                let list=tempStorage[i];
+                this.db.mutationUpdateList(list);
+            }
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
@@ -102,6 +121,23 @@ class App extends React.Component {
             let list = this.db.queryGetList(key);
             list.name = newName;
             this.db.mutationUpdateList(list);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+            let tempStorage=[];
+            for (let i=0; i<newKeyNamePairs.length; i++){
+                let j=0;
+                let list=this.db.queryGetList(j);
+                while (newKeyNamePairs[i].name != list.name){
+                    list=this.db.queryGetList(j);    
+                    j++;
+                }
+                list.key = newKeyNamePairs[i].key;
+                tempStorage[i]=list; 
+            }
+
+            for (let i=0; i<tempStorage.length; i++){
+                let list=tempStorage[i];
+                this.db.mutationUpdateList(list);
+            }
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
@@ -150,12 +186,12 @@ class App extends React.Component {
 
         });
     }
-    deleteList = () => {
+    deleteList = (key) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
-        this.showDeleteListModal();
+        this.showDeleteListModal(key);
     }
 
     //EXECUTES THE FUNCTION TO REMOVE LIST FROM LOCAL STORAGE
@@ -164,9 +200,21 @@ class App extends React.Component {
         //FIGURE OUT HOW TO PHYSICALLY REMOVE THE LIST FROM THE LOCAL STORAGE
         let updatedPairs = [...this.state.sessionData.keyNamePairs];
         updatedPairs.splice(key, 1);
+        let list = this.db.queryGetList(key);
+        this.db.mutationDeleteList(list);
+        for (let i=0; i<updatedPairs.length; i++){
+            if ((updatedPairs[i].key)>key){
+                let updatingList= this.db.queryGetList(updatedPairs[i].key);
+                let oldList = this.db.queryGetList(updatedPairs[i].key);
+                updatingList.key = String(updatingList.key - 1);
+                updatedPairs[i].key = String(updatedPairs[i].key -1);
+                this.db.mutationUpdateList(updatingList);
+                this.db.mutationDeleteList(oldList);
+            }
+        }
+
         this.sortKeyNamePairsByName(updatedPairs);
 
-        //SETS THE STATE OF REMOVING THE NEXTKEY AND COUNTER BY 1, THEN CLOSES THE LIST
         this.setState(prevState => ({
             sessionData: {
                 nextKey: prevState.sessionData.nextKey - 1,
@@ -174,19 +222,24 @@ class App extends React.Component {
                 keyNamePairs: updatedPairs
             }
         }), () => {
-            // REMOVING ITEM IN PERMANENT STORAGE
-            // IS AN AFTER EFFECT
+            // AFTER EFFECT
+            this.db.mutationUpdateSessionData(this.state.sessionData);
             this.closeCurrentList();
             this.hideDeleteListModal();
-            this.db.mutationUpdateSessionData(this.state.sessionData);
         });
-
-
+        
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
     showDeleteListModal(key) {
         let modal = document.getElementById("delete-modal");
+        let newCurrentList = this.db.queryGetList(key);
+        this.setState(prevState => ({
+            currentList: newCurrentList,
+            sessionData: prevState.sessionData
+        }), () => {
+            // ANY AFTER EFFECTS?
+        });
         modal.classList.add("is-visible");
     }
     // THIS FUNCTION IS FOR HIDING THE MODAL
