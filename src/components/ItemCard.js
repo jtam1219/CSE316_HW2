@@ -51,9 +51,9 @@ export default class ItemCard extends React.Component {
       
     drop = (event) => {
         event.preventDefault();
-        let data = event.dataTransfer.getData("text");
+        let oldId = event.dataTransfer.getData("id");
         event.target.style.background = "";
-        //this.db.moveItemTransaction??????
+        this.props.moveItemCallback(this.props.listid, oldId, event.target.id);
     }
 
     leave = (event) => {

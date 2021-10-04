@@ -11,6 +11,10 @@ import Sidebar from './components/Sidebar.js'
 import Workspace from './components/Workspace.js';
 import Statusbar from './components/Statusbar.js'
 
+import jsTPS from './common/jsTPS.js'
+import MoveItem_Transaction from './transactions/MoveItem_Transaction.js';
+import ChangeItem_Transaction from "./transactions/ChangeItem_Transaction.js"
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -26,6 +30,8 @@ class App extends React.Component {
             currentList : null,
             sessionData : loadedSessionData
         }
+
+        this.tps= new jsTPS();
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
         keyNamePairs.sort((keyPair1, keyPair2) => {
@@ -183,7 +189,8 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
-
+            this.tps.clearAllTransactions();
+            this.updateToolbarButtons();
         });
     }
     deleteList = (key) => {
@@ -247,18 +254,70 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
-    hasUndos(){
-        alert("Checks if most recent transaction >= 0")
-    }
-    hasRedos(){
-        alert("Checks if most recent transaction + 1 < number of transactions")
+    addChangeItemTransaction = (id, newText) => {
+        // GET THE CURRENT TEXT
+        let oldText = this.currentList.items[id];
+        let transaction = new ChangeItem_Transaction(this, id, oldText, newText);
+        this.tps.addTransaction(transaction);
     }
 
-    doUndoTransaction(){
-        alert("Make a Transaction Stack + 1 to Array!")
+    addMoveItemTransaction = (listid, oldIndex, newIndex) => {
+        //GET THE CURRENT TEXT
+        oldIndex = oldIndex[5];
+        newIndex = newIndex[5];
+        //oldIndex--;
+        //newIndex--;
+        let transaction = new  MoveItem_Transaction(this, listid, oldIndex, newIndex);
+        this.tps.addTransaction(transaction);
     }
-    doRedoTransaction(){
-        alert("Make a Transaction Stack + 2 to Array!")
+
+    moveItem = (listid, oldId, newId) => {
+        let list=this.db.queryGetList(listid);
+        list.items.splice(newId,  0, list.items.splice(oldId, 1)[0]);
+        this.db.mutationUpdateList(list);
+        this.loadList(listid);
+    }
+
+    // SIMPLE UNDO/REDO FUNCTIONS
+    undo = () => {
+        if (this.tps.hasTransactionToUndo()) {
+            this.tps.undoTransaction();
+            this.updateToolbarButtons();
+        }
+    }
+
+    redo = () => {
+        if (this.tps.hasTransactionToRedo()) {
+            this.tps.doTransaction();
+            this.updateToolbarButtons();
+        }
+    }
+ 
+    disableButton(id) {
+        let button = document.getElementById(id);
+        button.classList.add("disabled");
+    }
+
+    enableButton(id) {
+        let button = document.getElementById(id);
+        button.classList.remove("disabled");
+    }
+
+    updateToolbarButtons = () => {
+        let tps = this.tps;
+        if (!tps.hasTransactionToUndo()) {
+            this.disableButton("undo-button");
+        }
+        else {
+            this.enableButton("undo-button");
+        }   
+        if (!tps.hasTransactionToRedo()) {
+            this.disableButton("redo-button");
+        }
+        else {
+            this.enableButton("redo-button");
+        }   
+        
     }
     render() {
         return (
@@ -266,8 +325,8 @@ class App extends React.Component {
                 <Banner 
                     title='Top 5 Lister'
                     closeCallback={this.closeCurrentList}
-                    doUndoCallback={this.doUndoTransaction}
-                    doRedoCallback={this.doRedoTransaction} />
+                    doUndoCallback={this.undo}
+                    doRedoCallback={this.redo} />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
@@ -279,7 +338,9 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList}
-                    renameItemCallback={this.renameItem} />
+                    renameItemCallback={this.renameItem}
+                    moveItemCallback={this.addMoveItemTransaction}
+                    changeItemCallback={this.addChangeItemTransaction} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
