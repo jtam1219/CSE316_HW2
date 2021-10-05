@@ -18,7 +18,9 @@ export default class Sidebar extends React.Component {
                 deleteListCallback, 
                 loadListCallback,
                 clearTransactionsCallback,
-                renameListCallback,tps} = this.props;
+                renameListCallback,tps,
+                doUndoCallback,
+                doRedoCallback, } = this.props;
         return (
             <div id="top5-sidebar">
                 <div id="sidebar-heading">
@@ -41,6 +43,8 @@ export default class Sidebar extends React.Component {
                             loadListCallback={loadListCallback}
                             renameListCallback={renameListCallback}
                             clearTransactionsCallback={clearTransactionsCallback}
+                            doUndoCallback={doUndoCallback}
+                            doRedoCallback={doRedoCallback}
                             tps={tps}
                         />
                     ))

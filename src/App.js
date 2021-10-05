@@ -341,6 +341,7 @@ class App extends React.Component {
         }   
         
     }
+      
     render() {
         return (
             <div id="app-root">
@@ -358,6 +359,8 @@ class App extends React.Component {
                     loadListCallback={this.loadList}
                     renameListCallback={this.renameList}
                     clearTransactionsCallback={this.tps.clearAllTransactions}
+                    doUndoCallback={this.undo}
+                    doRedoCallback={this.redo} 
                     tps={this.tps}
                 />
                 <Workspace
