@@ -8,28 +8,6 @@ export default class ListCard extends React.Component {
             text: this.props.keyNamePair.name,
             editActive: false,
         }
-
-        this.myDiv = React.createRef();
-    }
-    
-    componentDidMount = () => {
-        this.myDiv.current.addEventListener('keydown', this.handleKey);
-        this.myDiv.current.focus();
-    }
-
-    componentWillUnmount = () => {
-        this.myDiv.current.removeEventListener('keydown', this.handleKey);
-    }
-
-    handleKey = (event) => {
-        if (event.code === "KeyZ" && event.ctrlKey){
-            this.props.doUndoCallback();
-        }
-        else if(event.code === "KeyY" && event.ctrlKey){
-            this.props.doRedoCallback();
-        }
-        else{   
-        }
     }
 
     handleClick = (event) => {
@@ -96,11 +74,10 @@ export default class ListCard extends React.Component {
             }
             return (
                 <div
-                    ref={this.myDiv}
+                    
                     id={keyNamePair.key}
                     key={keyNamePair.key}
                     onClick={this.handleClick}
-                    onKeyDown={this.handleKey}
                     className={'list-card ' + selectClass}>
                     <span
                         id={"list-card-text-" + keyNamePair.key}

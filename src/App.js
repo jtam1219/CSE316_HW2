@@ -341,10 +341,30 @@ class App extends React.Component {
         }   
         
     }
-      
+    
+    componentDidMount = () => {
+        window.addEventListener('keydown', this.handleKey);
+    }
+
+    componentWillUnmount = () => {
+        window.removeEventListener('keydown', this.handleKey);
+    }
+
+    handleKey = (event) => {
+        if (event.ctrlKey && event.code === "KeyZ"){
+            this.undo();
+        }
+        else if(event.ctrlKey && event.code === "KeyY"){
+            this.redo();
+        }
+        else{   
+        }
+    }
+
     render() {
         return (
-            <div id="app-root">
+            <div id="app-root" ref={this.myDiv}
+                    onKeyDown={this.handleKey}>
                 <Banner 
                     title='Top 5 Lister'
                     closeCallback={this.closeCurrentList}
